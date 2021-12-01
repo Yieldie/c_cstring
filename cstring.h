@@ -13,4 +13,6 @@ void replace(CString *str, int pos, char sub);
 
 char *to_char_ptr(CString *str);
 
+void cstring_delete(CString *str);
+
 #endif

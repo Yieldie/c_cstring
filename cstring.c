@@ -45,3 +45,9 @@ char *to_char_ptr(CString *str)
 	}
 	return ret;
 }
+
+void cstring_delete(CString *str)
+{
+	free(str->content);
+	free(str);
+}
