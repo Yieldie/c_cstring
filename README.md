@@ -1,2 +1,2 @@
 # tieto_cstring
-Implementation of Cstring - simple wrapper on char*
+An implementation of Cstring - simple wrapper on char*
