@@ -36,7 +36,7 @@ void test_length(void)
 		str = cstring_new(tmp);
 		assert(length(cstring) == n);
 		free(tmp);
-		//cstring_delete(str), unimplemented
+		cstring_delete(str)
 	}
 }
 
