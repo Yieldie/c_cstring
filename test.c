@@ -23,6 +23,7 @@ void initialize(void)
 	srand(time(NULL));
 }
 
+// Test basic functionality - whether the content of CString does match the input or not.
 void test_basic(void) 
 {
 	char *tmp, *res;
@@ -40,6 +41,7 @@ void test_basic(void)
 	}
 }
 
+// Test whether the length() function returns correct values.
 void test_length(void) 
 {
 	int n;
@@ -55,6 +57,7 @@ void test_length(void)
 	}
 }
 
+// Test whether the get_char() function returns the correct values.
 void test_getchar(void)
 {
 	char *tmp;
@@ -65,12 +68,13 @@ void test_getchar(void)
 		for(int j = 0; j < MAX_LEN; j++) {
 			assert(get_char(str, j) == *(tmp + j));
 		}
-		assert(get_char(str, MAX_LEN + rand() % 10) == '\0');
+		assert(get_char(str, MAX_LEN + rand() % 10) == '\0'); // test the extreme case - position out of scope, the get_char() should return '\0' char
 		free(tmp);
 		cstring_delete(str);
 	}
 }
 
+// Test whether the replace() procedure performs correct substitutions.
 void test_replace() 
 {
 	char c;
@@ -81,7 +85,7 @@ void test_replace()
 		str = cstring_new(tmp);
 		for(int j = 0; j < MAX_LEN; j++) {
 			if(rand() % 2 == 0) {
-				c = (char)(*(tmp + j) + 1 + rand() % ('z' - 'a' - 1));
+				c = (char)(*(tmp + j) + 1 + rand() % ('z' - 'a' - 1)); // it is guaranteed that the new char generated this way will be different than the old one
 				*(tmp + j) = c;
 				replace(str, j, c);
 			}
@@ -96,18 +100,20 @@ void test_replace()
 	}
 }
 
+// Test whether operating on the pointer from the to_char_ptr() function affects the value inside the CString (actually should not affect). 
 void test_immutable() 
 {
 	CString *str = cstring_new(random_str(MAX_LEN));
 	char *tmp = to_char_ptr(str);
 	for(int i = 0; i < MAX_LEN; i++) {
-		*(tmp + i) += 1 + rand() % ('z' - 'a' - 1);
+		*(tmp + i) += 1 + rand() % ('z' - 'a' - 1); // as in the previous test, it is certain that we obtain a different char than the actual in tmp, so the equality should fail
 		assert(get_char(str, i) != *(tmp + i));
 	}
 	free(tmp);
 	cstring_delete(str);
 }
 
+// Generate random string of given length, containing only small letters (for simplicity).
 char *random_str(int length)
 {
 	char *str = (char *)malloc((length + 1) * sizeof(char));
