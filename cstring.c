@@ -5,6 +5,7 @@ typedef struct CString
 {
 	int len;
 	char *content;
+	int lock;
 } CString;
 
 CString *cstring_new(const char* str)
@@ -14,6 +15,7 @@ CString *cstring_new(const char* str)
 	while(*(str + l++) != '\0'); //find the length of the input string
 	ret->len = l - 1;
 	ret->content = (char *)malloc(l * sizeof(char));
+	ret->lock = UNLOCKED;
 	for(int i = 0; i < l; i++) {
 		*(ret->content + i) = *(str + i);
 	}
@@ -32,22 +34,14 @@ char get_char(CString *str, int pos)
 
 void replace(CString *str, int pos, char sub)
 {
-	if(pos < str->len) {
+	if(str->lock == UNLOCKED && pos < str->len) {
 		*(str->content + pos) = sub;
 	}
 }
 
 char *to_char_ptr(CString *str)
 {
-	char *ret = (char *)malloc((str->len + 1) * sizeof(char));
-	for(int i = 0; i <= str->len; i++) {
-		*(ret + i) = *(str->content + i);
-	}
-	return ret;
+	str->lock = LOCKED;
+	return str->content;
 }
 
-void cstring_delete(CString *str)
-{
-	free(str->content);
-	free(str);
-}

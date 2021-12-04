@@ -9,6 +9,7 @@
 #define TEST_LEN	100
 #define TEST_GET	100
 #define TEST_REPLACE	100
+#define TEST_IMMUTABLE	100
 
 void initialize(void);
 void test_basic(void);
@@ -17,10 +18,12 @@ void test_getchar(void);
 void test_replace(void);
 void test_immutable(void);
 char *random_str(int length);
+void finalize(void);
 
 void initialize(void)
 {
 	srand(time(NULL));
+	printf("Running unit tests...\n");
 }
 
 // Test basic functionality - whether the content of CString does match the input or not.
@@ -37,7 +40,7 @@ void test_basic(void)
 		}
 		free(tmp);
 		free(res);
-		cstring_delete(str);
+		free(str);
 	}
 }
 
@@ -53,7 +56,7 @@ void test_length(void)
 		str = cstring_new(tmp);
 		assert(length(str) == n);
 		free(tmp);
-		cstring_delete(str);
+		free(str);
 	}
 }
 
@@ -70,12 +73,12 @@ void test_getchar(void)
 		}
 		assert(get_char(str, MAX_LEN + rand() % 10) == '\0'); // test the extreme case - position out of scope, the get_char() should return '\0' char
 		free(tmp);
-		cstring_delete(str);
+		free(str);
 	}
 }
 
 // Test whether the replace() procedure performs correct substitutions.
-void test_replace() 
+void test_replace(void) 
 {
 	char c;
 	char *tmp, *res;
@@ -96,21 +99,35 @@ void test_replace()
 		}
 		free(tmp);
 		free(res);
-		cstring_delete(str);
+		free(str);
 	}
 }
 
-// Test whether operating on the pointer from the to_char_ptr() function affects the value inside the CString (actually should not affect). 
-void test_immutable() 
+// Test whether after getting the result string from to_char_ptr() function, the replace() procedure doesn't affect the content of CString 
+void test_immutable(void)
 {
-	CString *str = cstring_new(random_str(MAX_LEN));
-	char *tmp = to_char_ptr(str);
-	for(int i = 0; i < MAX_LEN; i++) {
-		*(tmp + i) += 1 + rand() % ('z' - 'a' - 1); // as in the previous test, it is certain that we obtain a different char than the actual in tmp, so the equality should fail
-		assert(get_char(str, i) != *(tmp + i));
+	int n, p;
+	char c, old;
+	char *tmp;
+	CString *str;
+	for(int i = 0; i < TEST_IMMUTABLE; i++) {
+		n = rand() % MAX_LEN + 1; //random length
+		tmp = random_str(n);
+		str = cstring_new(tmp);
+		to_char_ptr(str); //we don't need the return value here, just to call the function
+		p = rand() % n; //random position to replace
+		c = (char)(*(tmp + p) + 1 + rand() % ('z' - 'a' - 1)); //the "new" char
+		old = *(tmp + p); //the old char
+		replace(str, p, c); //this should fail
+		assert(old == to_char_ptr(str)[p]); //assert that the "new" char on position p is equal to the old one
+		free(tmp);
+		free(str);
 	}
-	free(tmp);
-	cstring_delete(str);
+}
+
+void finalize(void)
+{
+	printf("OK\n");
 }
 
 // Generate random string of given length, containing only small letters (for simplicity).
@@ -124,7 +141,7 @@ char *random_str(int length)
 	return str;
 }
 
-int main(void) 
+int main(void)
 {
 	initialize();
 	test_basic();
@@ -132,5 +149,6 @@ int main(void)
 	test_getchar();
 	test_replace();
 	test_immutable();
+	finalize();
 	return 0;
 }
