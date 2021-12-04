@@ -1,2 +1,2 @@
 # tieto_cstring
-An implementation of Cstring - a simple wrapper on char*
+Plik cstring.c zawiera implementację struktury CString oraz jej API. Plik test.c zawiera testy jednostkowe: test podstawowej funkcjonalności (zwracanie char*) oraz funkcji zwracającej długość, znak na danej pozycji, zamieniającej znak, a także blokady na modyfikację po pobraniu zawartości. Kompilacja na systemie Linux przy pomocy polecenia make i uruchomienie ./test lub gcc cstring.c test.c, wówczas uruchomienie ./a.out.
