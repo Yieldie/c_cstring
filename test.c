@@ -29,18 +29,18 @@ void initialize(void)
 // Test basic functionality - whether the content of CString does match the input or not.
 void test_basic(void) 
 {
-	char *tmp, *res;
+	char *tmp; 
+	const char *res;
 	CString *str;
 	for(int i = 0; i < TEST_BASIC; i++) {
 		tmp = random_str(MAX_LEN);
 		str = cstring_new(tmp);
 		res = to_char_ptr(str);
 		for(int j = 0; j < MAX_LEN; j++) {
-			assert(*(res + j) == *(tmp + j));
+			assert(res[j] == tmp[j]);
 		}
 		free(tmp);
-		free(res);
-		free(str);
+		cstring_delete(str);
 	}
 }
 
@@ -56,7 +56,7 @@ void test_length(void)
 		str = cstring_new(tmp);
 		assert(length(str) == n);
 		free(tmp);
-		free(str);
+		cstring_delete(str);
 	}
 }
 
@@ -69,11 +69,11 @@ void test_getchar(void)
 		tmp = random_str(MAX_LEN);
 		str = cstring_new(tmp);
 		for(int j = 0; j < MAX_LEN; j++) {
-			assert(get_char(str, j) == *(tmp + j));
+			assert(get_char(str, j) == tmp[j]);
 		}
 		assert(get_char(str, MAX_LEN + rand() % 10) == '\0'); // test the extreme case - position out of scope, the get_char() should return '\0' char
 		free(tmp);
-		free(str);
+		cstring_delete(str);
 	}
 }
 
@@ -81,47 +81,25 @@ void test_getchar(void)
 void test_replace(void) 
 {
 	char c;
-	char *tmp, *res;
+	char *tmp; 
+	const char *res;
 	CString *str;
 	for(int i = 0; i < TEST_REPLACE; i++) {
 		tmp = random_str(MAX_LEN);
 		str = cstring_new(tmp);
 		for(int j = 0; j < MAX_LEN; j++) {
 			if(rand() % 2 == 0) {
-				c = (char)(*(tmp + j) + 1 + rand() % ('z' - 'a' - 1)); // it is guaranteed that the new char generated this way will be different than the old one
-				*(tmp + j) = c;
+				c = (char)(tmp[j] + 1 + rand() % ('z' - 'a' - 1)); // it is guaranteed that the new char generated this way will be different than the old one
+				tmp[j] = c;
 				replace(str, j, c);
 			}
 		}
 		res = to_char_ptr(str);
 		for(int j = 0; j < MAX_LEN; j++) {
-			assert(*(tmp + j) == *(res + j));
+			assert(tmp[j] == res[j]);
 		}
 		free(tmp);
-		free(res);
-		free(str);
-	}
-}
-
-// Test whether after getting the result string from to_char_ptr() function, the replace() procedure doesn't affect the content of CString 
-void test_immutable(void)
-{
-	int n, p;
-	char c, old;
-	char *tmp;
-	CString *str;
-	for(int i = 0; i < TEST_IMMUTABLE; i++) {
-		n = rand() % MAX_LEN + 1; //random length
-		tmp = random_str(n);
-		str = cstring_new(tmp);
-		to_char_ptr(str); //we don't need the return value here, just to call the function
-		p = rand() % n; //random position to replace
-		c = (char)(*(tmp + p) + 1 + rand() % ('z' - 'a' - 1)); //the "new" char
-		old = *(tmp + p); //the old char
-		replace(str, p, c); //this should fail
-		assert(old == to_char_ptr(str)[p]); //assert that the "new" char on position p is equal to the old one
-		free(tmp);
-		free(str);
+		cstring_delete(str);
 	}
 }
 
@@ -135,9 +113,9 @@ char *random_str(int length)
 {
 	char *str = (char *)malloc((length + 1) * sizeof(char));
 	for(int i = 0; i < length; i++) {
-		*(str + i) = (char)('a' + rand() % ('z' - 'a' + 1));
+		str[i] = (char)('a' + rand() % ('z' - 'a' + 1));
 	}
-	*(str + length) = '\0';
+	str[length] = '\0';
 	return str;
 }
 
@@ -148,7 +126,6 @@ int main(void)
 	test_length();
 	test_getchar();
 	test_replace();
-	test_immutable();
 	finalize();
 	return 0;
 }

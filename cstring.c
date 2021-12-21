@@ -1,26 +1,25 @@
 #include <stdlib.h>
+#include <string.h>
 #include "cstring.h"
 
-typedef struct CString
+struct CString
 {
-	int len;
+	unsigned int len;
 	char *content;
-	int lock;
-} CString;
+};
 
 /**
  * Funkcja zwraca nową strukturę CString z zawartością str.
  */
 CString *cstring_new(const char* str)
 {
-	int l = 0;
+	unsigned int l = 0;
 	CString *ret = (CString *)malloc(sizeof(CString));
-	while(*(str + l++) != '\0'); //find the length of the input string
-	ret->len = l - 1;
-	ret->content = (char *)malloc(l * sizeof(char));
-	ret->lock = UNLOCKED;
-	for(int i = 0; i < l; i++) {
-		*(ret->content + i) = *(str + i);
+	if(ret != NULL) {
+		l = strlen(str);
+		ret->len = l;
+		ret->content = (char *)malloc(l * sizeof(char));
+		memcpy(ret->content, str, (size_t)l);
 	}
 	return ret;
 }
@@ -36,28 +35,34 @@ int length(CString *str)
 /**
  * Funkcja zwraca znak na pozycji pos w stringu str, o ile pos mieści się w zakresie.
  */
-char get_char(CString *str, int pos)
+char get_char(CString *str, unsigned int pos)
 {
-	return (pos < str->len) ? *(str->content + pos) : '\0';
+	return (pos < str->len) ? str->content[pos] : '\0';
 }
 
 /**
- * Funkcja zmienia znak na pozycji pos w stringu str na znak sub, o ile zmiana jest dozwolona 
- * i pos mieści się w zakresie.
+ * Funkcja zmienia znak na pozycji pos w stringu str na znak sub, o ile pos mieści się w zakresie.
  */
-void replace(CString *str, int pos, char sub)
+void replace(CString *str, unsigned int pos, char sub)
 {
-	if(str->lock == UNLOCKED && pos < str->len) {
-		*(str->content + pos) = sub;
+	if(pos < str->len) {
+		str->content[pos] = sub;
 	}
 }
 
 /**
- * Funkcja zwraca reprezentację char* struktury str i nakłada blokadę modyfikacji (sprawdzaną w procedurze replace()).
+ * Funkcja zwraca reprezentację char* struktury str.
  */
-char *to_char_ptr(CString *str)
+const char *to_char_ptr(CString *str)
 {
-	str->lock = LOCKED;
 	return str->content;
 }
 
+/**
+ * Dodatkowa funkcja do usuwania struktury wraz z dealokacją zawartości char *content.
+ */
+void cstring_delete(CString *str)
+{
+	free(str->content);
+	free(str);
+}

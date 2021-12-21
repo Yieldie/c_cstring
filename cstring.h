@@ -10,10 +10,12 @@ CString *cstring_new(const char* str);
 
 int length(CString *str);
 
-char get_char(CString *str, int pos);
+char get_char(CString *str, unsigned int pos);
 
-void replace(CString *str, int pos, char sub);
+void replace(CString *str, unsigned int pos, char sub);
 
-char *to_char_ptr(CString *str);
+const char *to_char_ptr(CString *str);
+
+void cstring_delete(CString *str);
 
 #endif
